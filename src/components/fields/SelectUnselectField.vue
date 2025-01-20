@@ -1,27 +1,32 @@
+SelectUnselectField.vue
 <template>
   <div>
     <div class="options-container">
       <div class="options-block">
         <h4>Available Options</h4>
-        <textarea
-          readonly
-          rows="10"
-          cols="30"
-          @click="toggleOption('available', $event)"
-        >
-          {{ availableOptionsText }}
-        </textarea>
+        <div class="options-list">
+          <div
+            v-for="option in availableOptions"
+            :key="option.id"
+            class="option-item"
+            @click="toggleOption(option)"
+          >
+            {{ option.label }}
+          </div>
+        </div>
       </div>
       <div class="options-block">
         <h4>Disabled Options</h4>
-        <textarea
-          readonly
-          rows="10"
-          cols="30"
-          @click="toggleOption('disabled', $event)"
-        >
-          {{ disabledOptionsText }}
-        </textarea>
+        <div class="options-list">
+          <div
+            v-for="option in disabledOptions"
+            :key="option.id"
+            class="option-item"
+            @click="toggleOption(option)"
+          >
+            {{ option.label }}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -43,36 +48,11 @@ export default {
     disabledOptions() {
       return this.options.filter((option) => option.status === 'Disabled');
     },
-    availableOptionsText() {
-      return this.availableOptions.map((option) => option.label).join('\n');
-    },
-    disabledOptionsText() {
-      return this.disabledOptions.map((option) => option.label).join('\n');
-    },
   },
   methods: {
-    toggleOption(type, event) {
-      const clickedLine = event.target.selectionStart;
-      const lines =
-        type === 'available'
-          ? this.availableOptionsText.split('\n')
-          : this.disabledOptionsText.split('\n');
-      let charCount = 0;
-
-      for (let i = 0; i < lines.length; i++) {
-        charCount += lines[i].length + 1;
-        if (clickedLine <= charCount) {
-          const optionIndex = this.options.findIndex(
-            (option) => option.label === lines[i]
-          );
-          if (optionIndex !== -1) {
-            this.options[optionIndex].status =
-              type === 'available' ? 'Disabled' : 'Available';
-            this.$emit('update-options', this.options);
-          }
-          break;
-        }
-      }
+    toggleOption(option) {
+      option.status = option.status === 'Available' ? 'Disabled' : 'Available';
+      this.$emit('update-options', [...this.options]);
     },
   },
 };
@@ -85,9 +65,20 @@ export default {
 }
 .options-block {
   width: 45%;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 2px;
 }
-textarea {
-  width: 100%;
+.options-list {
+  max-height: 200px;
+  overflow-y: auto;
+  text-underline-offset: 0;
+  padding: 5px;
+  border-radius: 5px;
+}
+.option-item {
+  padding: 5px;
   cursor: pointer;
 }
+
 </style>

@@ -7,9 +7,9 @@
         <component
           :is="getComponentName(field)"
           :field="field"
-          :modelValue="modelValue ? modelValue[field.id] : ''"
+          :options="field.options"
           @update="updateFormData"
-          :options="field.options" 
+          @update-options="updateOptions"
           :ref="(el) => setFieldRef(field, el)"
         />
       </div>
@@ -18,7 +18,9 @@
       </div>
     </form>
     <label id="result-label">Result:</label><br />
-    <textarea id="result" rows="10" cols="50" disabled></textarea>
+    <textarea id="result" rows="10" cols="50" disabled>{{
+      formattedDisabledOptions
+    }}</textarea>
   </div>
 </template>
 
@@ -50,6 +52,7 @@ const props = defineProps({
 let { handleChange, valueFromEvent } = fieldMixin.setup(props, { emit });
 
 let formData = toRaw(props.modelValue);
+let options = ref([]);
 
 watch(
   () => props.modelValue,
@@ -74,9 +77,13 @@ const updateFormData = (idAndValue) => {
     [id]: value,
   };
 
-  emit('options', {
+  emit('update', {
     value: toRaw(formData),
   });
+};
+
+const updateOptions = (updatedOptions) => {
+  options.value = updatedOptions;
 };
 
 const onSubmit = (event) => {
@@ -90,13 +97,18 @@ const onSubmit = (event) => {
 };
 
 const getComponentName = (field) => {
-
-
   let compName = field.type.charAt(0).toUpperCase() + field.type.slice(1);
   compName = compName.replace(/[_-](\w)/g, (_, match) => match.toUpperCase());
 
   return defineAsyncComponent(() => import(`./fields/${compName}Field.vue`));
 };
+
+const formattedDisabledOptions = computed(() => {
+  const disabledOptions = options.value
+    .filter((option) => option.status === 'Disabled')
+    .map((option) => option.id);
+  return `Opciones deshabilitadas: ${JSON.stringify(disabledOptions)}`;
+});
 
 defineExpose({
   setSelected,
