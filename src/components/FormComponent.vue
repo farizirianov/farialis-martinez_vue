@@ -9,6 +9,7 @@
           :field="field"
           :modelValue="modelValue ? modelValue[field.id] : ''"
           @update="updateFormData"
+          :options="field.options" 
           :ref="(el) => setFieldRef(field, el)"
         />
       </div>

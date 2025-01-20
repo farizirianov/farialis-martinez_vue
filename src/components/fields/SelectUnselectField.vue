@@ -37,18 +37,18 @@ export default {
     },
   },
   computed: {
-    // availableOptions() {
-    //   return this.options.options.filter((option) => option.status === 'Available');
-    // },
-    // disabledOptions() {
-    //   return this.options.filter((option) => option.status === 'Disabled');
-    // },
-    // availableOptionsText() {
-    //   return this.availableOptions.map((option) => option.label).join('\n');
-    // },
-    // disabledOptionsText() {
-    //   return this.disabledOptions.map((option) => option.label).join('\n');
-    // },
+    availableOptions() {
+      return this.options.filter((option) => option.status === 'Available');
+    },
+    disabledOptions() {
+      return this.options.filter((option) => option.status === 'Disabled');
+    },
+    availableOptionsText() {
+      return this.availableOptions.map((option) => option.label).join('\n');
+    },
+    disabledOptionsText() {
+      return this.disabledOptions.map((option) => option.label).join('\n');
+    },
   },
   methods: {
     toggleOption(type, event) {
@@ -63,9 +63,13 @@ export default {
         charCount += lines[i].length + 1;
         if (clickedLine <= charCount) {
           const optionIndex = this.options.findIndex(
-            (option) => option.name === lines[i]
+            (option) => option.label === lines[i]
           );
-          this.$emit('update-option', optionIndex);
+          if (optionIndex !== -1) {
+            this.options[optionIndex].status =
+              type === 'available' ? 'Disabled' : 'Available';
+            this.$emit('update-options', this.options);
+          }
           break;
         }
       }
